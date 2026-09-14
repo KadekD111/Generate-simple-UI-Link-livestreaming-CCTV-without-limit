@@ -1,0 +1,37 @@
+Penjelasan Detail Kode:
+
+[Unit] (Syarat Berjalan):
+
+After=network.target: Memastikan service ini hanya menyala setelah server Linux berhasil terhubung ke jaringan internet.
+
+StartLimitIntervalSec=0: Menghapus batas maksimal percobaan restart. Linux akan terus mencoba menghidupkan service ini selamanya jika terjadi error, tanpa status "menyerah" (failed).
+
+[Service] (Inti Eksekusi):
+
+User=root: Menjalankan FFmpeg dengan hak akses tertinggi administrator agar diizinkan menghapus file di direktori web.
+
+TimeoutStopSec=5 & KillMode=mixed: Jika FFmpeg hang (macet) akibat koneksi kamera terputus, Linux hanya akan menunggu 5 detik sebelum membunuh paksa proses tersebut. Ini mencegah terminal Anda stuck.
+
+ExecStartPre=-/bin/rm -f ...: Perintah persiapan. Tanda minus (-) berarti "abaikan jika gagal/file tidak ada". Ini memastikan file sisa rekaman video lama (kepingan .ts dan playlist .m3u8) dihapus bersih sebelum kamera mulai merekam aliran baru, mencegah error garis waktu (timeline) di pemutar web.
+
+Parameter FFmpeg pada ExecStart:
+
+-rtsp_transport tcp: Memaksa aliran RTSP menggunakan jalur TCP yang stabil alih-alih UDP yang rentan kehilangan paket data (packet loss).
+
+-stimeout 5000000: Batas waktu soket 5 juta mikrodetik (5 detik). Jika kamera gagal mengirim data selama 5 detik, FFmpeg langsung mematikan diri agar bisa di-restart sistem.
+
+-c:v copy: Video disalin langsung dari sumbernya tanpa proses transcoding (kompresi ulang). Ini sangat menghemat beban CPU VPS.
+
+-c:a aac: Format audio bawaan kamera diubah ke AAC agar dikenali oleh browser web.
+
+-f hls: Mengatur format hasil keluaran (output) menjadi format web HTTP Live Streaming.
+
+-hls_time 2 & -hls_list_size 5: Memecah video menjadi potongan berdurasi 2 detik, dan hanya menyimpan 5 potongan terbaru di memori agar video selalu siaran langsung (real-time).
+
+-hls_flags delete_segments: Secara otomatis menghapus file .ts lama dari penyimpanan VPS agar kapasitas disk tidak penuh.
+
+Restart=always & RestartSec=10: Jika proses mati, hidupkan kembali dengan jeda istirahat 10 detik untuk mencegah CPU overheating.
+
+[Install]:
+
+WantedBy=multi-user.target: Menjadikan service ini fitur autorun yang otomatis menyala saat VPS melakukan reboot.

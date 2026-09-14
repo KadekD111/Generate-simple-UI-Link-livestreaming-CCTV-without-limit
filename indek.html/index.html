@@ -1,0 +1,51 @@
+HTML
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Live CCTV Network</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <style>
+        body { background-color: #1a1a1a; color: white; font-family: sans-serif; text-align: center; }
+        .video-container { max-width: 900px; margin: 40px auto; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        video { width: 100%; height: auto; display: block; }
+    </style>
+</head>
+<body>
+
+    <h2>Monitor Live Streaming</h2>
+    <div class="video-container">
+        <video id="cctv-player" controls autoplay muted></video>
+    </div>
+
+    <script>
+        var video = document.getElementById('cctv-player');
+        // Fitur Cache Buster
+        var videoSrc = '/hls/kamera.m3u8?t=' + new Date().getTime();
+
+        if (Hls.isSupported()) {
+            var hls = new Hls({ maxLiveSyncPlaybackRate: 1.5, liveSyncDurationCount: 3 });
+            hls.loadSource(videoSrc);
+            hls.attachMedia(video);
+            hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                var playPromise = video.play();
+                if (playPromise !== undefined) { playPromise.catch(function(error) {}); }
+            });
+            // Sistem Auto-Recovery
+            hls.on(Hls.Events.ERROR, function (event, data) {
+                if (data.fatal) {
+                    if (data.type === Hls.ErrorTypes.NETWORK_ERROR) { hls.startLoad(); }
+                    else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) { hls.recoverMediaError(); }
+                    else { hls.destroy(); }
+                }
+            });
+        }
+        // Fallback untuk perangkat Apple (Safari/iOS)
+        else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = videoSrc;
+            video.addEventListener('loadedmetadata', function() { video.play(); });
+        }
+    </script>
+</body>
+</html>

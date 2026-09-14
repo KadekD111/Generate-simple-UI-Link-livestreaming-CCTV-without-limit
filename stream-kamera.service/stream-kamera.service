@@ -1,0 +1,22 @@
+Ini, TOML
+[Unit]
+Description=FFmpeg RTSP to HLS Stream
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=root
+TimeoutStopSec=5
+KillMode=mixed
+
+ExecStartPre=-/bin/rm -f /var/www/html/hls/kamera.m3u8 /var/www/html/hls/*.ts
+
+# [SENSITIF] Ganti Username, Password, IP Publik Kamera, dan Port dengan placeholder
+ExecStart=/usr/bin/ffmpeg -rtsp_transport tcp -stimeout 5000000 -i "rtsp://<USERNAME>:<PASSWORD>@<IP_PUBLIK>:<PORT>/<PATH>" -c:v copy -c:a aac -f hls -hls_time 2 -hls_list_size 5 -hls_flags delete_segments /var/www/html/hls/kamera.m3u8
+
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

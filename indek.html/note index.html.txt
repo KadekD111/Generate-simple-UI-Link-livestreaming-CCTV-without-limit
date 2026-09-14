@@ -1,0 +1,11 @@
+Penjelasan Detail Kode:
+
+<script src="...hls.js"></script>: Memanggil pustaka eksternal karena peramban seperti Chrome dan Edge tidak mendukung HLS secara bawaan.
+
+<video ... autoplay muted>: Atribut muted wajib ada karena aturan browser modern akan memblokir fitur putar otomatis (autoplay) jika video tersebut bersuara saat pertama kali dibuka.
+
+?t=' + new Date().getTime(): Menambahkan jejak waktu unik ke akhir URL video (Cache Buster). Ini memaksa peramban mengira URL tersebut selalu baru, menjamin tarikan file selalu segar dari server.
+
+maxLiveSyncPlaybackRate: 1.5: Jika penonton mengalami lag jaringan lambat, video akan otomatis dipercepat 1,5x lipat hingga mengejar ketertinggalan waktu siaran langsung.
+
+hls.on(Hls.Events.ERROR...: Blok pemulihan otomatis. Jika koneksi terputus sesaat (NETWORK_ERROR), pemutar akan mencoba memancing unduhan ulang. Jika ada file video yang korup/rusak (MEDIA_ERROR), pemutar akan melompatinya tanpa menampilkan layar error merah (crash).

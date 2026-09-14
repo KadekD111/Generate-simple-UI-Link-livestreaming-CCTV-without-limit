@@ -1,0 +1,17 @@
+Penjelasan Detail Kode:
+
+listen 80: Nginx mendengarkan permintaan masuk dari port standar HTTP.
+
+server_name: Nginx mencocokkan konfigurasi ini dengan nama domain spesifik yang diketik pengguna di browser.
+
+root & index: Menentukan direktori utama untuk memuat file index.html.
+
+Blok Khusus Video (location /hls):
+
+add_header Cache-Control "no-cache...: Instruksi tegas yang melarang semua jenis browser untuk menyimpan file .m3u8 di memori sementaranya. Ini adalah kunci agar video tidak mengalami stuck atau buffering tiada henti saat halaman dimuat ulang.
+
+Access-Control-Allow-Origin '*': Membuka gerbang Cross-Origin Resource Sharing (CORS). Mengizinkan file video ini disematkan (embed) di nama domain lain menggunakan <iframe>.
+
+types { ... }: Memberi tahu browser bahwa .m3u8 dan .ts adalah tipe file media (Apple HLS), bukan file teks polos.
+
+alias /var/www/html/hls;: Mengarahkan Nginx untuk mengambil file dari direktori spesifik tersebut saat pengunjung mengakses URL /hls/.
