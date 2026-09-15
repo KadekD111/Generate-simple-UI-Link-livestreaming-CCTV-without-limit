@@ -1,0 +1,15 @@
+Step by Step Notes
+
+====================================
+
+*stream-kamera.service* File ini adalah instruksi untuk sistem operasi Linux (Systemd) tentang cara mengelola proses FFmpeg di latar belakang secara otomatis.
+
+====================================
+
+*nginx-stream.conf* File ini mengatur lalu lintas jaringan web, mengenali domain Anda, dan mendistribusikan file video HLS ke penonton tanpa melakukan caching
+
+====================================
+
+*index.html* File ini memuat pemutar video dan logika JavaScript untuk membaca aliran kepingan video HLS secara berkesinambungan. File ini aman dan tidak memerlukan penyensoran selama jalur videonya relatif (/hls/...).
+
+====================================
